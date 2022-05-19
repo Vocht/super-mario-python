@@ -1,3 +1,4 @@
+from numpy import isin
 import pygame
 
 from classes.Animation import Animation
@@ -7,6 +8,8 @@ from classes.EntityCollider import EntityCollider
 from classes.Input import Input
 from classes.Sprites import Sprites
 from entities.EntityBase import EntityBase
+from entities.Goomba import Goomba
+from entities.Koopa import Koopa
 from entities.Mushroom import RedMushroom
 from traits.bounce import bounceTrait
 from traits.go import GoTrait
@@ -153,23 +156,23 @@ class Mario(EntityBase):
         srf = pygame.Surface((640, 480))
         srf.set_colorkey((255, 255, 255), pygame.RLEACCEL)
         srf.set_alpha(128)
-        self.sound.music_channel.stop()
-        self.sound.music_channel.play(self.sound.death)
+        # self.sound.music_channel.stop()
+        # self.sound.music_channel.play(self.sound.death)
 
-        for i in range(500, 20, -2):
-            srf.fill((0, 0, 0))
-            pygame.draw.circle(
-                srf,
-                (255, 255, 255),
-                (int(self.camera.x + self.rect.x) + 16, self.rect.y + 16),
-                i,
-            )
-            self.screen.blit(srf, (0, 0))
-            pygame.display.update()
-            self.input.checkForInput()
-        while self.sound.music_channel.get_busy():
-            pygame.display.update()
-            self.input.checkForInput()
+        # for i in range(500, 20, -2):
+        #     srf.fill((0, 0, 0))
+        #     pygame.draw.circle(
+        #         srf,
+        #         (255, 255, 255),
+        #         (int(self.camera.x + self.rect.x) + 16, self.rect.y + 16),
+        #         i,
+        #     )
+        #     self.screen.blit(srf, (0, 0))
+        #     pygame.display.update()
+        #     self.input.checkForInput()
+        # while self.sound.music_channel.get_busy():
+        #     pygame.display.update()
+        #     self.input.checkForInput()
         self.restart = True
 
     def getPos(self):
@@ -186,3 +189,61 @@ class Mario(EntityBase):
                 self.traits['goTrait'].updateAnimation(bigAnimation)
                 self.rect = pygame.Rect(self.rect.x, self.rect.y-32, 32, 64)
                 self.invincibilityFrames = 20
+    
+    def game_state(self):
+        grid = {}
+        # Divide window into 32x32 tiles, starting at x,y = 0,0 ending at x,y = 640,480
+        for x in range(0, 640, 32):
+            for y in range(0, 480, 32):
+                grid[(x,y)] = 0
+        
+        for tiles in self.levelObj.level:
+            for tile in tiles:
+                # Check if tile is on screen
+                if tile.rect is not None and \
+                    tile.rect.x + self.camera.x >= 0 and \
+                    tile.rect.x + self.camera.x <= 640:
+                    # Check which coordinate the tile is at
+                    x = tile.rect.x + self.camera.x
+                    y = tile.rect.y - self.camera.y
+                    # round to nearest 32
+                    x = int(x / 32) * 32
+                    y = int(y / 32) * 32
+                    # If x == 640, set to 608
+                    if x == 640:
+                        x = 608
+                    # Find the tile's index in the tiles list
+                    grid[(x,y)] = 1
+
+        enemies = [p for p in self.levelObj.entityList if isinstance(p, (Koopa, Goomba))]
+        for enemy in enemies:
+            if enemy.rect is not None and \
+                enemy.rect.x + self.camera.x >= 0 and \
+                enemy.rect.x + self.camera.x <= 640:
+                    # Check which coordinate the tile is at
+                    x = enemy.rect.x + self.camera.x
+                    y = enemy.rect.y - self.camera.y
+                    # round to nearest 32 under 640 and 480
+                    x = int(x / 32) * 32
+                    y = int(y / 32) * 32
+                    # If x == 640, set to 608
+                    if x == 640:
+                        x = 608
+                    # Find the tile's index in the tiles list
+                    grid[(x,y)] = 2
+        
+        # Save mario's position in the grid
+        x = self.rect.x + self.camera.x
+        y = self.rect.y - self.camera.y
+        x = int(x / 32) * 32
+        y = int(y / 32) * 32
+        grid[(x,y)] = 3
+
+        # print()
+        # print("Game State: ", len(grid))
+        # for i in range(0, 480, 32): # Row
+        #     print()
+        #     for j in range(0, 640, 32): # Col
+        #         print(grid[(j,i)], end = " ")
+        
+        return grid
