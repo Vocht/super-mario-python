@@ -78,15 +78,22 @@ def test_ai(genome):
             inputs = list(game_state.values())
             net = neat.nn.FeedForwardNetwork.create(genome, config)
             outputs = net.activate(inputs)
-            decision = outputs.index(max(outputs)) # 0 = left, 1 = right, 2 = jump, 3 = nothing
-            if decision == 0:
-                mario.traits["goTrait"].direction = -1
-            elif decision == 1:
+            # decision = outputs.index(max(outputs)) # 0 = left, 1 = right, 2 = jump, 3 = nothing
+            # if decision == 0:
+            #     mario.traits["goTrait"].direction = -1
+            # elif decision == 1:
+            #     mario.traits["goTrait"].direction = 1
+            # elif decision == 2:
+            #     mario.traits["jumpTrait"].jump(True)
+            # else:
+            #     mario.traits["goTrait"].direction = 0
+
+            if outputs[0] > 0:
                 mario.traits["goTrait"].direction = 1
-            elif decision == 2:
+            if outputs[1] > 0:
+                mario.traits["goTrait"].direction = -1
+            if outputs[2] > 0:
                 mario.traits["jumpTrait"].jump(True)
-            else:
-                mario.traits["goTrait"].direction = 0
 
             level.drawLevel(mario.camera)
 
@@ -137,15 +144,22 @@ def eval_genomes(genomes, config):
                 game_state = mario.game_state()
                 inputs = list(game_state.values())
                 outputs = net.activate(inputs)
-                decision = outputs.index(max(outputs)) # 0 = left, 1 = right, 2 = jump, 3 = nothing
-                if decision == 0:
-                    mario.traits["goTrait"].direction = -1
-                elif decision == 1:
+                # decision = outputs.index(max(outputs)) # 0 = left, 1 = right, 2 = jump, 3 = nothing
+                # if decision == 0:
+                #     mario.traits["goTrait"].direction = -1
+                # elif decision == 1:
+                #     mario.traits["goTrait"].direction = 1
+                # elif decision == 2:
+                #     mario.traits["jumpTrait"].jump(True)
+                # else:
+                #     mario.traits["goTrait"].direction = 0
+
+                if outputs[0] > 0:
                     mario.traits["goTrait"].direction = 1
-                elif decision == 2:
+                if outputs[1] > 0:
+                    mario.traits["goTrait"].direction = -1
+                if outputs[2] > 0:
                     mario.traits["jumpTrait"].jump(True)
-                else:
-                    mario.traits["goTrait"].direction = 0
 
                 level.drawLevel(mario.camera)
 
@@ -166,7 +180,7 @@ def eval_genomes(genomes, config):
                 mario.update()
                 if mario.getPos()[0] - mario.camera.x <= previous_x:
                     idle_time += 1
-                if idle_time > 600:
+                if idle_time > 120:
                     break
                 previous_x = mario.getPos()[0] - mario.camera.x
 
@@ -242,7 +256,7 @@ def draw_overlay(screen, mario, genome):
                 pygame.draw.line(screen, DARK if gcon.enabled else LIGHT, (coordinate[0] + 7, coordinate[1] + 3), connection, 1)
 
     # Print progress percentage (max distance: 1888 pixels on x-axis)
-    progress = str(int((mario.getPos()[0] - mario.camera.x) / 1888 * 100))
+    progress = str(int((mario.getPos()[0] - mario.camera.x) / (mario.levelObj.levelLength * 32 * 100)))
     progress_text = font.render('Progress: ' + progress + '%', True, (225, 225, 225))
     
     screen.blit(left, (550, 70))
@@ -256,7 +270,7 @@ def draw_overlay(screen, mario, genome):
     pygame.draw.rect(screen, (255, 255, 255), (31, 31, 241, 181), 2)
 
 def run_neat(config):
-    # p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-65')
+    # p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-29')
     p = neat.Population(config)
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
@@ -284,5 +298,5 @@ if __name__ == "__main__":
         config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                             neat.DefaultSpeciesSet, neat.DefaultStagnation,
                             config_path)
-        run_neat(config)
-        # test_best_network(config)
+        # run_neat(config)
+        test_best_network(config)
