@@ -1,7 +1,7 @@
 [NEAT]
 fitness_criterion     = max
-fitness_threshold     = 1888
-pop_size              = 50
+fitness_threshold     = 4160
+pop_size              = 200
 reset_on_extinction   = False
 
 [DefaultStagnation]
@@ -11,17 +11,17 @@ species_elitism      = 2
 
 [DefaultReproduction]
 elitism            = 2
-survival_threshold = 0.2
+survival_threshold = .2
 
 [DefaultGenome]
 # node activation options
 activation_default      = tanh
-activation_mutate_rate  = 0.2
+activation_mutate_rate  = .2
 activation_options      = tanh
 
 # node aggregation options
 aggregation_default     = sum
-aggregation_mutate_rate = 0.0
+aggregation_mutate_rate = .0
 aggregation_options     = sum
 
 # node bias options
@@ -29,51 +29,51 @@ bias_init_mean          = 3.0
 bias_init_stdev         = 1.0
 bias_max_value          = 30.0
 bias_min_value          = -30.0
-bias_mutate_power       = 0.5
-bias_mutate_rate        = 0.7
-bias_replace_rate       = 0.1
+bias_mutate_power       = .5
+bias_mutate_rate        = .7
+bias_replace_rate       = .1
 
 # genome compatibility options
 compatibility_disjoint_coefficient = 1.0
-compatibility_weight_coefficient   = 0.5
+compatibility_weight_coefficient   = .5
 
 # connection add/remove rates
-conn_add_prob           = 0.25
-conn_delete_prob        = 0.5
+conn_add_prob           = .7
+conn_delete_prob        = .5
 
 # connection enable options
 enabled_default         = True
-enabled_mutate_rate     = 0.01
+enabled_mutate_rate     = .1
 
-feed_forward            = True
+feed_forward            = False
 initial_connection      = unconnected
 
 # node add/remove rates
-node_add_prob           = 0.2
-node_delete_prob        = 0.2
+node_add_prob           = .5
+node_delete_prob        = .5
 
 # network parameters
-num_hidden              = 2
-num_inputs              = 300
+num_hidden              = 1
+num_inputs              = 194
 num_outputs             = 3
 
 # node response options
 response_init_mean      = 1.0
-response_init_stdev     = 0.0
+response_init_stdev     = .0
 response_max_value      = 30.0
 response_min_value      = -30.0
-response_mutate_power   = 0.0
-response_mutate_rate    = 0.0
-response_replace_rate   = 0.0
+response_mutate_power   = .0
+response_mutate_rate    = .0
+response_replace_rate   = .0
 
 # connection weight options
-weight_init_mean        = 0.0
+weight_init_mean        = .0
 weight_init_stdev       = 1.0
 weight_max_value        = 30
 weight_min_value        = -30
-weight_mutate_power     = 0.5
-weight_mutate_rate      = 0.8
-weight_replace_rate     = 0.1
+weight_mutate_power     = .5
+weight_mutate_rate      = .8
+weight_replace_rate     = .1
 
 [DefaultSpeciesSet]
-compatibility_threshold = 2.5
+compatibility_threshold = 2.8

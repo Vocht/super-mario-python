@@ -121,7 +121,7 @@ class Level:
                 pygame.Rect((x + 1) * 32, y * 32, 32, 32),
             )
             # add pipe body
-            for i in range(1, length + 20):
+            for i in range(1, length + 20): # TODO: Why have length if you're just going to add 20 to it?
                 self.level[y + i][x] = Tile(
                     self.sprites.spriteCollection.get("pipe2L"),
                     pygame.Rect(x * 32, (y + i) * 32, 32, 32),

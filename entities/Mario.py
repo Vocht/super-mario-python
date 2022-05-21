@@ -156,6 +156,7 @@ class Mario(EntityBase):
         srf = pygame.Surface((640, 480))
         srf.set_colorkey((255, 255, 255), pygame.RLEACCEL)
         srf.set_alpha(128)
+        # TODO: Make death animation toggle
         # self.sound.music_channel.stop()
         # self.sound.music_channel.play(self.sound.death)
 
@@ -193,8 +194,9 @@ class Mario(EntityBase):
     def game_state(self):
         grid = {}
         # Divide window into 32x32 tiles, starting at x,y = 0,0 ending at x,y = 640,480
-        for x in range(0, 640, 32):
-            for y in range(0, 480, 32):
+        # Take away the top 2 rows and the bottom 1 row because they contain useless information
+        for x in range(0, 512, 32): # Cuts off the most right 4 rows
+            for y in range(64, 448, 32): # Cuts off the top 3, and bottom 1 rows from the grid
                 grid[(x,y)] = 0
         
         for tiles in self.levelObj.level:
@@ -210,10 +212,11 @@ class Mario(EntityBase):
                     x = int(x / 32) * 32
                     y = int(y / 32) * 32
                     # If x == 640, set to 608
-                    if x == 640:
-                        x = 608
-                    # Find the tile's index in the tiles list
-                    grid[(x,y)] = 1
+                    if x == 512:
+                        x = 480
+                    # Find the tile's index in the tiles list if y > 64 and y < 448
+                    if y > 64 and y < 448 and x >= 0 and x < 512:
+                        grid[(x,y)] = 1
 
         enemies = [p for p in self.levelObj.entityList if isinstance(p, (Koopa, Goomba))]
         for enemy in enemies:
@@ -227,23 +230,22 @@ class Mario(EntityBase):
                     x = int(x / 32) * 32
                     y = int(y / 32) * 32
                     # If x == 640, set to 608
-                    if x == 640:
-                        x = 608
+                    if x == 512:
+                        x = 480
                     # Find the tile's index in the tiles list
-                    grid[(x,y)] = 2
+                    if y > 64 and y < 448 and x >= 0 and x < 512:
+                        grid[(x,y)] = 2
         
-        # Save mario's position in the grid
+        # Save mario's position in the grid TODO: Check if this is necessary for any reason other than visuals
         x = self.rect.x + self.camera.x
         y = self.rect.y - self.camera.y
         x = int(x / 32) * 32
         y = int(y / 32) * 32
-        grid[(x,y)] = 3
+        if y > 64 and y < 448 and x >= 0 and x < 512:
+            grid[(x,y)] = 3
 
-        # print()
-        # print("Game State: ", len(grid))
-        # for i in range(0, 480, 32): # Row
-        #     print()
-        #     for j in range(0, 640, 32): # Col
-        #         print(grid[(j,i)], end = " ")
-        
+        # Additionally, add mario's coordinates to the grid
+        grid[(-1, -1)] = self.getPosIndex().x
+        grid[(-2, -2)] = self.getPosIndex().y
+
         return grid
