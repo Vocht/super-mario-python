@@ -231,8 +231,10 @@ class Menu:
                         self.dashboard.state = "start"
                         self.dashboard.time = 0
                         self.level.loadLevel(self.levelNames[self.currSelectedLevel-1])
-                        print(self.levelNames[self.currSelectedLevel-1])
-                        self.dashboard.levelName = self.levelNames[self.currSelectedLevel-1].split("Level")[1]
+                        if self.levelNames[self.currSelectedLevel-1] == "random":
+                            self.dashboard.levelName = "random"
+                        else:
+                            self.dashboard.levelName = self.levelNames[self.currSelectedLevel-1].split("Level")[1]
                         self.start = True
                         return
                     if not self.inSettings:

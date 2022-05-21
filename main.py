@@ -293,4 +293,5 @@ if __name__ == "__main__":
                             neat.DefaultSpeciesSet, neat.DefaultStagnation,
                             config_path)
         # run_neat(config)
-        test_best_network(config)
+        # test_best_network(config)
+        main()

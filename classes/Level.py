@@ -1,15 +1,18 @@
 import json
+import os
+import random
+
 import pygame
+from entities.Coin import Coin
+from entities.CoinBox import CoinBox
+from entities.CoinBrick import CoinBrick
+from entities.Goomba import Goomba
+from entities.Koopa import Koopa
+from entities.Mushroom import RedMushroom
+from entities.RandomBox import RandomBox
 
 from classes.Sprites import Sprites
 from classes.Tile import Tile
-from entities.Coin import Coin
-from entities.CoinBrick import CoinBrick
-from entities.Goomba import Goomba
-from entities.Mushroom import RedMushroom
-from entities.Koopa import Koopa
-from entities.CoinBox import CoinBox
-from entities.RandomBox import RandomBox
 
 
 class Level:
@@ -23,12 +26,20 @@ class Level:
         self.entityList = []
 
     def loadLevel(self, levelname):
-        with open("./levels/{}.json".format(levelname)) as jsonData:
-            data = json.load(jsonData)
-            self.loadLayers(data)
-            self.loadObjects(data)
-            self.loadEntities(data)
-            self.levelLength = data["length"]
+        if levelname == "random":
+            with open("./levels/{}.json".format("Level9-9")) as jsonData:
+                self._generateRandomLevel(levelname)
+                self._initLevel(jsonData)
+        else:
+            with open("./levels/{}.json".format(levelname)) as jsonData:
+                self._initLevel(jsonData)
+    
+    def _initLevel(self, jsonData):
+        data = json.load(jsonData)
+        self.loadLayers(data)
+        self.loadObjects(data)
+        self.loadEntities(data)
+        self.levelLength = data["length"]
 
     def loadEntities(self, data):
         try:
@@ -97,7 +108,7 @@ class Level:
                             x + camera.pos.x, y, self.screen
                         )
             self.updateEntities(camera)
-        except IndexError:
+        except IndexError as err:
             return
 
     def addCloudSprite(self, x, y):
@@ -203,3 +214,40 @@ class Level:
         self.entityList.append(
             RedMushroom(self.screen, self.sprites.spriteCollection, x, y, self, self.sound)
         )
+
+    def _generateRandomLevel(self, levelname):
+        # Stitch together a bunch of tiles at random
+        with open("./levels/{}.json".format(levelname)) as jsonData:
+            data = json.load(jsonData)
+            tiles = data["length"]
+            jsontiles = []
+            merged = {}
+
+            # Pick a random tile from os.listdir("./level_tiles/") 4 times
+            for i in range(0, tiles):
+                tile = random.choice(os.listdir("./level_tiles/"))
+                with open("./level_tiles/" + tile) as jsonTile:
+                    jsontiles.append(json.load(jsonTile))
+
+            for index, tile in enumerate(jsontiles):
+                for obj in tile['level']['objects'].items():
+                    for xy in obj[1]:
+                        xy[0] += 20 * index
+                for obj in tile['level']['entities'].items():
+                    for xy in obj[1]:
+                        xy[0] += 20 * index
+                if len(merged) == 0:
+                    merged = {**merged, **tile}
+                else:
+                    for obj in merged["level"]["objects"].items():
+                        merged["level"]['objects'][obj[0]] += tile['level']['objects'][obj[0]]
+                    for obj in merged["level"]["entities"].items():
+                        merged["level"]['entities'][obj[0]] += tile['level']['entities'][obj[0]]
+
+            new_len = 20 * len(jsontiles)
+            merged['length'] = new_len
+            merged['level']['layers']['sky']['x'] = ([0, new_len])
+            merged['level']['layers']['ground']['x'] = ([0, new_len])
+
+            with open("./levels/Level9-9.json", "w") as outfile:
+                json.dump(merged, outfile)
